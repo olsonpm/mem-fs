@@ -5,6 +5,7 @@ var util = require('util');
 var vinylFile = require('vinyl-file');
 var File = require('vinyl');
 var through = require('through2');
+var assert = require('assert');
 
 exports.create = function () {
   var store = {};
@@ -55,6 +56,24 @@ exports.create = function () {
       stream.end();
     }.bind(this));
     return stream;
+  };
+  
+  Store.prototype.merge = function merge (storeArr) {
+    assert(
+      Array.isArray(storeArr)
+      , "Invalid Argument: <Store>.merge requires an array"
+    );
+    var self = this;
+    
+    // for each store in the store array
+    storeArr.forEach(function(aStore) {
+      
+      // for each vinyl file within the store
+      aStore.each(function(aVinylFile) {
+        self.add(aVinylFile);
+      });
+    });
+        
   };
 
   return new Store();

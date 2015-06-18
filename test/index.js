@@ -106,4 +106,40 @@ describe('mem-fs', function () {
       });
     });
   });
+  
+  describe('#merge()', function() {
+    it('should result in the parent store containing both files found in the child stores', function() {
+      var parent = memFs.create()
+        , child1 = memFs.create()
+        , child2 = memFs.create();
+      
+      var aVinyl = child1.get(fixtureA);
+      var bVinyl = child2.get(fixtureB);
+      parent.merge([child1, child2]);
+      
+      var check = {};
+      check[aVinyl.path] = false;
+      check[bVinyl.path] = false;
+      
+      parent.each(function(aVinylFile) {
+        check[aVinylFile.path] = true;
+      });
+      Object.keys(check).forEach(function(key) {
+        assert(
+          check[key]
+          , 'Parent didn\'t contain file: ' + key
+        );
+      });
+      
+      assert(
+        parent.get(fixtureA).contents.compare(child1.get(fixtureA).contents) === 0
+        , 'The parent\'s fixtureA contents don\'t match its child\'s'
+      );
+        
+      assert(
+        parent.get(fixtureB).contents.compare(child2.get(fixtureB).contents) === 0
+        , 'The parent\'s fixtureA contents don\'t match its child\'s'
+      );
+    });
+  });
 });
